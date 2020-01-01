@@ -2,7 +2,8 @@ import argparse
 import torch
 import torch.nn as nn
 from torchvision import datasets, transforms
-import logging
+import os
+import time
 from torch.autograd import Variable
 import torch.optim as optim
 import numpy as np
@@ -21,10 +22,11 @@ def str2bool(v):
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--train_model', default='v1', type=str, help="trained model type")
-    parser.add_argument('-da', '--data_aug', default=False, type=str2bool, help="whether perform data augmentation for training data")
-    parser.add_argument('-lr', '--learning_rate', default=0.1, type=float, help="learning rate")
+    parser.add_argument('-da', '--data_aug', default=True, type=str2bool, help="whether perform data augmentation for training data")
+    parser.add_argument('-lr', '--learning_rate', default=0.025, type=float, help="learning rate")
     parser.add_argument('-mo', '--momentum', default=0.9, type=float, help="momentum")
-    parser.add_argument('-e', '--epochs', default=30, type=int, help="epochs")
+    parser.add_argument('-e', '--epochs', default=60, type=int, help="epochs")
+    parser.add_argument('-o', '--save_folder', default='saved_model/v1', type=str, help="path for saved trained model")
     parser.add_argument('-bs', '--batch_size', default=128, type=int, help="batch size")
     return parser.parse_args()
 
@@ -53,11 +55,13 @@ class Train:
         if self.use_gpu:
             self.net.cuda()
 
-        logging.info("Init model weights")
+        print("Init model weights")
         self.net.apply(self.init_weights)
 
         # optimizer
         self.optimizer = optim.SGD(self.net.parameters(), lr=self.args.learning_rate, momentum=self.args.momentum)
+        self.scheduler = optim.lr_scheduler.MultiStepLR(self.optimizer, milestones=[40], gamma=0.3)
+
 
     def build_dataloader(self):
 
@@ -82,6 +86,7 @@ class Train:
 
         while epoch < self.args.epochs:
             epoch += 1
+            self.scheduler.step()
             losses = []
             for i, (batch_x, batch_y) in enumerate(self.train_dataloader):
                 if self.use_gpu:
@@ -94,12 +99,28 @@ class Train:
                 loss = self.loss_func(out, target)
                 loss.backward()
                 self.optimizer.step()
-                losses.append(loss.data.cpu()[0])
+                losses.append(loss.item())
 
-            logging.info(f"Epoch: {epoch} Loss: {np.mean(losses)}")
+            print(f"Epoch: {epoch} Loss: {np.mean(losses)}")
 
     def testing(self):
-        pass
+
+        self.net.eval()
+        correct_num = 0
+        for i, (batch_x, batch_y) in enumerate(self.test_dataloader):
+            if self.use_gpu:
+                data = Variable(batch_x).cuda()
+            else:
+                data = Variable(batch_x)
+            target = batch_y
+            output = self.net(data)
+            if self.use_gpu:
+                output = output.cpu()
+            predicted = output.argmax(dim=1, keepdim=True)
+            correct_num += predicted.eq(target.view_as(predicted)).sum().item()
+
+        print(f"Total Correct Num: {correct_num} Accuracy: {correct_num / 10000}")
+
 
     @staticmethod
     def init_weights(m):
@@ -111,6 +132,17 @@ class Train:
             init.normal_(m.weight.data, mean=1, std=0.02)
             init.constant_(m.bias.data, 0)
 
+    def print_model_parm_nums(self):
+        model = self.net
+        total = sum([param.nelement() for param in model.parameters()])
+        print(f' Number of params: {total / 1e6}M')
+
+    def save_model(self):
+        if not os.path.exists(self.args.save_folder):
+            os.mkdir(self.args.save_folder)
+        torch.save(self.net.state_dict(), os.path.join(self.args.save_folder, self.args.train_model + '_params.pkl'))
+        torch.save(self.net, os.path.join(self.args.save_folder, self.args.train_model + '.pkl'))
+
 
 if __name__ == "__main__":
     args = get_args()
@@ -118,5 +150,12 @@ if __name__ == "__main__":
     trainer = Train(args=args)
     trainer.build_dataloader()
     trainer.create_model()
+    trainer.print_model_parm_nums()
+    training_start = time.time()
     trainer.training()
+    print(f"Training Time: {time.time() - training_start}")
+    trainer.save_model()
+    testing_start = time.time()
+    trainer.testing()
+    print(f"Testing Time: {time.time() - testing_start}")
 

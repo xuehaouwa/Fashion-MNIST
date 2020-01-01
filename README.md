@@ -4,11 +4,26 @@
 
 ### Requirements
 
+pytorch 0.4.1
+
+torchvision 0.2.1
+
 
 
 ### Model Description
 
-### Pretrained Models
+| Model | parameters | Augmentation (Random Horizontal Flips) | Accuracy | Training Time | Test Time |
+| :---: | ---------- | :------------------------------------: | -------- | ------------- | --------- |
+|  v1   |            |                                        |          |               |           |
+|  v1   |            |           :heavy_check_mark:           |          |               |           |
+|  v2   |            |                                        |          |               |           |
+|  v2   | 0.844362M  |           :heavy_check_mark:           | 92.48%   | 279.82        | 0.598     |
+|  v3   |            |                                        |          |               |           |
+|  v3   |            |           :heavy_check_mark:           |          |               |           |
+
+
+
+### 
 
 
 
