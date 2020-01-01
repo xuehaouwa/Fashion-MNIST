@@ -5,8 +5,11 @@
 ### Requirements
 
 pytorch 0.4.1
-
 torchvision 0.2.1
+scikit-video
+(For Object Detection)
+tensorflow 
+keras
 
 
 

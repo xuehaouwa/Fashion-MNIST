@@ -130,4 +130,7 @@ dmypy.json
 
 \.idea/
 
+/downloaded
+
 /fashionmnist_data
+*.mp4
