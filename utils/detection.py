@@ -12,7 +12,7 @@ class BodyDetector:
         self.detector.loadModel(detection_speed=speed)
         self.custom_objects = self.detector.CustomObjects(person=True)
 
-    def load_model(self, model_path='./downloaded'):
+    def load_model(self, model_path='../downloaded'):
         self.detector.setModelPath(os.path.join(model_path, 'resnet50_coco_best_v2.0.1.h5'))
 
     def process(self, image):
@@ -25,7 +25,7 @@ class BodyDetector:
             input_type="array",
             input_image=latest_frame,
             output_type="array",
-            minimum_percentage_probability=50)
+            minimum_percentage_probability=70)
 
         print(f'image detection time. {time.time() - tmp_t}')
 
