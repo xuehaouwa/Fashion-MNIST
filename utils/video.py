@@ -18,7 +18,7 @@ class VideoProcessor:
             inputdict={'-r': str(12)},
             outputdict={'-c:v': 'libx264', '-pix_fmt': 'yuv420p', '-c:a': 'libvo_aacenc'})
 
-        self.body_detector = BodyDetector(speed='fast')
+        self.body_detector = BodyDetector(speed='normal')
         self.body_detector.load_model()
 
         self.fashion_classifier = torch.load(trained_model, map_location="cpu")
@@ -29,19 +29,12 @@ class VideoProcessor:
         self.label_dict = {0: "t-shirt/top", 1: "trouser", 2: "pullover", 3: "dress", 4: "coat",
                            5: "sandal", 6: "shirt", 7: "sneaker", 8: "bag", 9: "ankle boot"}
         self.data_transforms = transforms.Compose([transforms.ToPILImage(), transforms.Grayscale(),
-                                                   transforms.CenterCrop(28), transforms.ToTensor()])
+                                                   transforms.Resize((28, 28)), transforms.ToTensor()])
 
     def classify_region(self, region, frame):
         # run fashion classification model on each detected body region
         try:
             region_img = frame[region.top: region.bottom, region.left: region.right]
-            # resize (keep ratio)
-            ratio = region.width / region.height
-            if region.width > region.height:
-                new_size = (int(ratio * 28), 28)
-            else:
-                new_size = (28, int(28 / ratio))
-            region_img = cv2.resize(region_img, new_size)
             region_img = cv2.cvtColor(region_img, cv2.COLOR_BGR2RGB)
             # doing data transform for classification model
             region_img = self.data_transforms(region_img).expand(1, 1, 28, 28)
@@ -74,5 +67,5 @@ class VideoProcessor:
 
 
 if __name__ == "__main__":
-    vp = VideoProcessor("/home/xuehao/Desktop/Fashion-MNIST/saved_model/v2_da/v2.pkl")
-    vp.process(video="/home/xuehao/Downloads/fashion_testing.mp4")
+    vp = VideoProcessor("../saved_model/v3_da_2/v3.pkl")
+    vp.process(video="../downloaded/fashion_testing.mp4")
