@@ -18,7 +18,7 @@ class VideoProcessor:
             inputdict={'-r': str(12)},
             outputdict={'-c:v': 'libx264', '-pix_fmt': 'yuv420p', '-c:a': 'libvo_aacenc'})
 
-        self.body_detector = BodyDetector(speed='normal')
+        self.body_detector = BodyDetector(speed='fast')
         self.body_detector.load_model()
 
         self.fashion_classifier = torch.load(trained_model, map_location="cpu")
@@ -67,5 +67,5 @@ class VideoProcessor:
 
 
 if __name__ == "__main__":
-    vp = VideoProcessor("../saved_model/v3_da_2/v3.pkl")
+    vp = VideoProcessor("../saved_model/v2_da/v2.pkl")
     vp.process(video="../downloaded/fashion_testing.mp4")
