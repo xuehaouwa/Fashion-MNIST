@@ -21,9 +21,9 @@ k-vision
 
 There are three simple CNN models in `models`:
 
-- v1: two 
-- v2:
-- v3
+- v1: two conv layers and two FC layers , without BatchNormalization
+- v2: two conv layers (larger channel number than v1) and two FC layers , with BatchNormalization
+- v3: three conv layers and three FC layers , with BatchNormalization
 
 
 
@@ -39,6 +39,10 @@ The performance of these models are listed below:
 |  v3_da  | 30.076234M |           :heavy_check_mark:           |  94.39%  |    889.963    |   1.215   |
 | v3_da_2 | 30.076234M |           :heavy_check_mark:           |  94.55%  |   1189.720    |   1.223   |
 
+Note the training and test time are benchmarked using a GTX-1080 GPU. Training time is the total time of all epochs.
+
+
+
 Training Process of the above listed models:
 
 - During training, the learning rate will be dropped with a factor of 0.3 at epoch 40.
@@ -47,7 +51,18 @@ Training Process of the above listed models:
 
 
 
-### Run On Camera Feeds or Video Files
+### How to Run
+
+- Train Yourself
+  1. `mkdir saved_model`  create path to save trained models
+  2. `python train.py`  you can change different models, learning rate and others by changing input args. There are some examples in `scripts/train.sh`
+- Use Pretrained Models
+  1. `bash scripts/download.sh` this will downloaded all 7 trained models (listed in the above table) and a short video (for testing the following Run on Video Files).
+  2. `python test.py`  same as `train.py`, you can select different predicted models.
+
+
+
+### Run on Camera Feeds or Video Files
 
 
 As we are focusing on the classification task in this repo, in order to make it work with videos, we need to get help from object detection model to localize items first. We then can run the classification model on the detected region.
