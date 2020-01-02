@@ -134,3 +134,9 @@ dmypy.json
 
 /fashionmnist_data
 *.mp4
+
+saved_model/v3/
+
+saved_model/v3_da/
+
+saved_model/v3_da_2/
