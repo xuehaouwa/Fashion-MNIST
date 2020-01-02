@@ -51,16 +51,18 @@ class VideoProcessor:
         while self.cap.isOpened():
             _, frame = self.cap.read()
             if frame is not None:
+                # downsize the original frame for speeding up
                 frame = cv2.resize(frame, (640, 480))
                 # doing body detection first
                 body_regions = self.body_detector.process(frame)
                 output_image = frame
                 for b_r in body_regions:
-                    # write predicted fashion class on the frame
+                    # write predicted fashion class name on the frame
                     output_image = label_region(output_image, text=self.classify_region(b_r, frame), region=b_r,
                                                 show_at_bottom=True, inside=True)
                 # draw bounding box on the frame
                 output_image = draw_regions(output_image, regions=body_regions)
+                # write into a video
                 self.video_writer.writeFrame(cv2.cvtColor(output_image, cv2.COLOR_BGR2RGB))
             else:
                 break

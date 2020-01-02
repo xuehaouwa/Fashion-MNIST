@@ -20,6 +20,7 @@ class BodyDetector:
         regions = []
         tmp_t = time.time()
 
+        # body detection, set min confidence to 0.7
         detected_image_array, detections = self.detector.detectCustomObjectsFromImage(
             custom_objects=self.custom_objects,
             input_type="array",
@@ -30,6 +31,8 @@ class BodyDetector:
         print(f'image detection time. {time.time() - tmp_t}')
 
         for person in detections:
+
+            # wrap detected results to Region for following process
             region = Region()
             region.confidence = float(person['percentage_probability'])
             region.set_rect(left=person['box_points'][0],
