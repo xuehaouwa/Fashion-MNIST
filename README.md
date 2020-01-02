@@ -6,12 +6,15 @@ In this repo, we are exploring [Fashion-MNIST](https://github.com/zalandoresearc
 
 - pytorch 0.4.1
 - torchvision 0.2.1
+  
   (For Saving Video)
 - scikit-video
+  
   (For Object Detection)
 - tensorflow 1.8.0
 - keras 2.1.0
 - imageai
+  
   (For Visualization)
 - k-vision
 
